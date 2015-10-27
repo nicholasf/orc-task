@@ -24,7 +24,7 @@ Sheet = function(data) {
 Sheet.prototype.resolve = function (cellName, dependencyPath, cb) {
     var letters, row, col;
 
-    //1. convert the cellName to an array location. If this can't be done, hand the cb a boundary error
+    //convert the cellName to an array location. If this can't be done, hand the cb a boundary error
     try {
         var lettersAndNumbers = alphabetConverter.toLettersAndNumbers(cellName)
         letters = lettersAndNumbers[0];
@@ -43,8 +43,6 @@ Sheet.prototype.resolve = function (cellName, dependencyPath, cb) {
         return cb({ message: constants.ERR }, null);
     }
 
-//    console.log('No previously identified errors for cellName ', cellName, ' continuing ... ')
-
     if (this.evaluatedData[row][col] === null) {
         parse(cellName, this.data[row][col], dependencyPath, this, (err, val) => {
             if (err) {
@@ -60,16 +58,31 @@ Sheet.prototype.resolve = function (cellName, dependencyPath, cb) {
     }
 };
 
-Sheet.prototype .evaluate = function(cb) {
-    var rows = 0;
-    var cols = 0;
+Sheet.prototype.evaluate = function(cb) {
+    var row = 1; //rows match the numbering convention of the spreadsheet, not arrays
+    var col = 0;
 
-    var cellEvaluator = (cell, cb) => {
-        this.resolve()
+    var lineEvaluator = (line, cb) => {
+        async.each(line, (cell, cb) => {
+            var cellName = alphabetConverter.arrayIndexToAlphabet(col) + row;
+            col++;
+            this.resolve(cellName, [], cb);
+        }, (err) => {
+            return cb(err);
+        });
+
+        row++;
+        return cb();
     }
 
-    async.each(this.data, cellEvaluator)
+    async.each(this.data, lineEvaluator, (err) => {
+        if (err) {
+            return cb(err, null);
+        }
+        else {
+            return cb(null, this.evaluatedData);
+        }
+    });
 }
-
 
 module.exports = Sheet;
