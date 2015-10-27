@@ -44,11 +44,18 @@ describe('The Sheet, with valid sample data', () => {
         });
 
     });
+
+    //describe('Rendering the calculated results', () => {
+    //    it('renders the expected output for the sample data', (done) => {
+    //        sheet.evaluate( (err, output) => {
+    //            expect(output[0][0]).to.equal(-8);
+    //        });
+    //    });
+    //});
 });
 
 
 describe('The Sheet, with data conditions not depicted in the sample set', () => {
-
     describe('column lists longer than the alphabet - e.g. AA, BB, etc.', () => {
         it('can access them successfully using standard spreadsheet notation', (done) => {
             //create an array that exceeds the 26 letter limit of the alphabet, so we can test 'AA1'
@@ -62,7 +69,6 @@ describe('The Sheet, with data conditions not depicted in the sample set', () =>
         })
     });
 });
-
 
 function arrayWithDefaultValue(rows, cols, defaultVal) {
     var outer = [];

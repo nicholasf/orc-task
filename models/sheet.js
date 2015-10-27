@@ -1,60 +1,75 @@
-var parse = require('./../lib/postfix-parser'),
+var async = require('async'),
+    parse = require('./../lib/postfix-parser'),
+    constants = require('./constants'),
+    alphabetConverter = require('./../lib/alphabet-converter'),
     Sheet;
 
 Sheet = function(data) {
     this.data = data;
     this.evaluatedData = [];
+
+    //initialise evaluatedData as an empty 2D structure to collect results for processed data
+    var i = 0;
+    this.data.forEach( (datum) => {
+        var i2 = 0;
+        this.evaluatedData[i] = [];
+        datum.forEach( (innerDatum) => {
+            this.evaluatedData[i][i2] = null;
+            i2++;
+        });
+        i++;
+    });
 };
 
-Sheet.prototype.resolve = (cellName, dependencyPath, cb) => {
+Sheet.prototype.resolve = function (cellName, dependencyPath, cb) {
     var letters, row, col;
 
     //1. convert the cellName to an array location. If this can't be done, hand the cb a boundary error
     try {
-        var lettersAndNumbers = toLettersAndNumbers(cellName)
+        var lettersAndNumbers = alphabetConverter.toLettersAndNumbers(cellName)
         letters = lettersAndNumbers[0];
-        row = lettersAndNumbers[1];
+        row = lettersAndNumbers[1] - 1; //adjust for array indexing
     }
     catch (err) {
         return cb({ message: err.message }, null);
     }
 
-    col = alphabetToArrayIndex(letters);
+    col = alphabetConverter.alphabetToArrayIndex(letters);
 
-    if (typeof evaluatedData[row][col] === 'undefined') {
-        evaluatedData[row][col] = parse(data[row][col], dependencyPath, this, cb);
+    //at this moment we check for circular dependencies to avoid cells referencing each other infinitely.
+    //if there is a cycle, we mark this result as an ERR
+    if (dependencyPath.indexOf(cellName) >= 0) {
+        this.evaluatedData[row][col] = constants.ERR;
+        return cb({ message: constants.ERR }, null);
     }
 
-    cb();
+//    console.log('No previously identified errors for cellName ', cellName, ' continuing ... ')
+
+    if (this.evaluatedData[row][col] === null) {
+        parse(cellName, this.data[row][col], dependencyPath, this, (err, val) => {
+            if (err) {
+                this.evaluatedData[row][col] = constants.ERR;
+                return cb({ message: constants.ERR }, null);
+            }
+            this.evaluatedData[row][col] = val;
+            return cb(null, this.evaluatedData[row][col]);
+        });
+    }
+    else {
+        return cb(null, this.evaluatedData[row][col]);
+    }
+};
+
+Sheet.prototype .evaluate = function(cb) {
+    var rows = 0;
+    var cols = 0;
+
+    var cellEvaluator = (cell, cb) => {
+        this.resolve()
+    }
+
+    async.each(this.data, cellEvaluator)
 }
 
-function toLettersAndNumbers(cellName) {
-    //locate the alphabetic portion
-    var lettersAndNumbers = cellName.match(/[a-zA-Z]+|[0-9]+/g);
-
-    if (lettersAndNumbers.length != 2) {
-        throw new Error("Invalid cell name [" + cellName + "]");
-    }
-
-    return lettersAndNumbers;
-};
-
-//the char 'A' is at position 65 in Unicode
-const ALPHABET_OFFSET = 65;
-
-function alphabetToArrayIndex(letters) {
-    //single or multiple letters?
-    if (letters.length > 1) {
-        var repeatingCount = ALPHABET_OFFSET;
-        letters.forEach( (letter) => {
-           repeatingCount += alphabetToArrayIndex(letter + '0');
-        });
-
-        return repeatingCount;
-    }
-
-    var unicodePosition = char.charCodeFrom();
-    return unicodePosition - ALPHABET_OFFSET;
-};
 
 module.exports = Sheet;
