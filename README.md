@@ -1,9 +1,24 @@
+## Simpler Approach
+
+Once the 2D array is ready, encapsulate it with a sheet abstraction that can relate requests for 'A3', etc., to the array.
+
+Pass each array item to the postfix-parser, along with the sheet. 
+
+The postfix parser will can request other items from the sheet, which can then track whether a cycle is occurring. 
+The postfix parser must either return ERR or a valid result.
+
+
+### Assumptions
+
+* CSV documents will not have more rows than there are letters in the alphabet. If they do, return an error.
+
+
 
 ## Approach
 
 The main consideration for designing a solution to this task is how to satisfy dependencies between expressions in a clean way.
 
-By 'clean' I mean an approach that does not fall into complexity when dealing with cyclic dependencies (e.g. A3 requires B3 which requires A3).
+By 'clean' I mean an approach that does not fall into complexity when dealing with resolving cyclic dependencies (e.g. A3 requires B3 which requires A3)
 
 ### Design
 
