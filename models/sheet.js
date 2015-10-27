@@ -62,26 +62,21 @@ Sheet.prototype.evaluate = function(cb) {
     var row = 1; //rows match the numbering convention of the spreadsheet, not arrays
     var col = 0;
 
-    var lineEvaluator = (line, cb) => {
-        async.each(line, (cell, cb) => {
-            var cellName = alphabetConverter.arrayIndexToAlphabet(col) + row;
-            col++;
-            this.resolve(cellName, [], cb);
-        }, (err) => {
+    var cellEvaluator = (cell, cb) => {
+        var cellName = alphabetConverter.arrayIndexToAlphabet(col) + row;
+        col++;
+        this.resolve(cellName, [], cb);
+    };
+
+    var rowEvaluator = (line, cb) => {
+        async.each(line, cellEvaluator, (err) => {
+            row++;
             return cb(err);
         });
+    };
 
-        row++;
-        return cb();
-    }
-
-    async.each(this.data, lineEvaluator, (err) => {
-        if (err) {
-            return cb(err, null);
-        }
-        else {
-            return cb(null, this.evaluatedData);
-        }
+    async.each(this.data, rowEvaluator, (err) => {
+        return cb(err, this.evaluatedData);
     });
 }
 
