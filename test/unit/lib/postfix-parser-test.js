@@ -88,17 +88,71 @@ describe('PostfixParser', () => {
         });
     });
 
-    describe('it recognises circular dependencies and ERRs on them', () => {
+    describe('data conversions', () => {
         var data;
         beforeEach( () => {
-            data = [[ '1 b1 +', 'a1' ]]
+            data = [[' ']];
             sheet = new Sheet(data);
         });
 
-        it('evaluates 1 b1 + to ERR', (done) => {
-            parse('a1', data[0][0], [], sheet, (err, val) => {
-                expect(err).to.not.be.null;
-                done();
+       it('converts empty space expressions to 0', (done) => {
+           parse('a1', data[0][0], [], sheet, (err, val) => {
+               expect(err).to.be.null;
+               expect(val).to.equal(0);
+               done();
+           });
+       });
+    });
+
+    describe('error conditions', () => {
+        describe('it recognises circular dependencies and ERRs on them', () => {
+            var data;
+            beforeEach( () => {
+                data = [[ '1 b1 +', 'a1' ]]
+                sheet = new Sheet(data);
+            });
+
+            it('evaluates 1 b1 + to ERR', (done) => {
+                parse('a1', data[0][0], [], sheet, (err, val) => {
+                    expect(err).to.not.be.null;
+                    done();
+                });
+            });
+        });
+
+        describe('it converts bad data to #ERR', () => {
+            var data;
+            beforeEach( () => {
+                data = [[ '!', '+', '1 / 0', '1 2']]
+                sheet = new Sheet(data);
+            });
+
+            it('evaluates ! to ERR', (done) => {
+                parse('a1', data[0][0], [], sheet, (err, val) => {
+                    expect(err).to.not.be.null;
+                    done();
+                });
+            });
+
+            it('evaluates + to ERR', (done) => {
+                parse('c1', data[0][1], [], sheet, (err, val) => {
+                    expect(err).to.not.be.null;
+                    done();
+                });
+            });
+
+            it('evaluates 1 / 0 to ERR', (done) => {
+                parse('d1', data[0][2], [], sheet, (err, val) => {
+                    expect(err).to.not.be.null;
+                    done();
+                });
+            });
+
+            it('evaluates 1 2 to ERR', (done) => {
+                parse('d1', data[0][3], [], sheet, (err, val) => {
+                    expect(err).to.not.be.null;
+                    done();
+                });
             });
         });
     });

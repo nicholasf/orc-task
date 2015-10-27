@@ -69,10 +69,10 @@ Sheet.prototype.evaluate = function(cb) {
     };
 
     var rowEvaluator = (line, cb) => {
-        async.each(line, cellEvaluator, (err) => {
-            row++;
-            return cb(err);
-        });
+        async.each(line, cellEvaluator);
+        col = 0;
+        row++;
+        cb();
     };
 
     async.each(this.data, rowEvaluator, (err) => {
