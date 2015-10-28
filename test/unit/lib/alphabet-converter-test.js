@@ -38,3 +38,4 @@ describe('#alphabetToArrayIndex', () => {
         expect(converter.alphabetToArrayIndex('aaz')).to.equal(77);
     });
 });
+

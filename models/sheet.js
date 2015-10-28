@@ -81,3 +81,4 @@ Sheet.prototype.evaluate = function(cb) {
 }
 
 module.exports = Sheet;
+
