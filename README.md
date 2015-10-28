@@ -19,3 +19,7 @@ Where the first supplied argument is the location of the CSV to parse and the se
 ```
 make test
 ```
+
+### Report
+
+Please see [the report](https://github.com/nicholasf/orc-task/blob/master/REPORT.md).
