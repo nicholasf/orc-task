@@ -31,7 +31,7 @@ The postfix parser must either return #ERR or a valid result.
 ### Assumptions
 
 * columns might exceed the 26 letters of the alphabet, so adopt the spreadsheet technique of accruing letters, e.g. 'AA', 'AAB'.
-* given the time restriction in this this task, opt for a simple 'data is beautiful' approach. Don't impose another data model above the 2D array data structure (as I was considering in my Original Approach).
+* given the time restriction in this task, opt for a simple 'data is beautiful' approach. Fight for simplicity. Don't impose another data model above the 2D array data structure (as I was considering in my Original Approach).
 
 ### Conclusion
 
