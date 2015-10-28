@@ -10,10 +10,10 @@ Sheet = function(data) {
 
     //initialise evaluatedData as an empty 2D structure to collect results for processed data
     var i = 0;
-    this.data.forEach( (datum) => {
+    this.data.forEach( (row) => {
         var i2 = 0;
         this.evaluatedData[i] = [];
-        datum.forEach( (innerDatum) => {
+        row.forEach( () => {
             this.evaluatedData[i][i2] = null;
             i2++;
         });
