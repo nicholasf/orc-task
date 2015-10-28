@@ -7,7 +7,7 @@ Postfix notation is not hard. What was obvious was that the challenges of this t
 Some key points on resolving variable dependencies:
 
 * a way of noticing cycles had to be put in place. a1 -> b2 -> a1 is an infinite recursion if not detected somehow. This is the simplest example of a cycle, they could be easily more complex.
-* the order by which to evaluate expressions is defined by the order in which variables are referenced. This means letting each expression recursively resolve its dependencies before being resolved.
+* the order by which to evaluate expressions is defined by the order in which variables are referenced. This means letting each expression resolve its dependencies before being resolved. 
 * modelling the relationship between CSV expressions could be potentially complex - as a DSL for naming expression ('a1', 'z5') has to be interpreted by another component in the relationship between the elements in a 2D array. 
 
 I went through two approaches in thinking how to solve this. My Original Approach, at the bottom of the document, involved stages of processing to establish a clean data model. 
